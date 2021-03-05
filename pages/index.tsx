@@ -4,12 +4,19 @@ import GlobalStyles from '../components/GlobalStyles';
 import questions from '../questions.json';
 import Poll from '../components/Poll';
 
-const IndexPage = styled.div``;
+const IndexPage = styled.div`
+  * {
+    margin: 0;
+    padding: 0px;
+    box-sizing: border-box;
+  }
+`;
 
 export default () => (
   <IndexPage>
     <GlobalStyles />
     <h1>Fullstack.io React Poll Challenge</h1>
+    <br />
     <p>
       Here is some text that is on the page in a paragraph tag. The poll will
       appear within this context below.
