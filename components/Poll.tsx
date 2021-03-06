@@ -1,13 +1,13 @@
+import _ from 'lodash';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { QandAsDocument, QandA } from '../types';
 import AskQuestion from './AskQuestion';
 import ChoiceList from './ChoiceList';
-import { getRamdomNumber, getTotalVotes } from '../utils';
-
+import { getTotalVotes } from '../utils';
 
 type Props = {
-  qandas: QandAsDocument /* q and a's -- questions and answers document */;
+  qandas: QandAsDocument;
 };
 
 const PollWrapper = styled.div`
@@ -25,32 +25,33 @@ const TotalVotesWrapper = styled.div`
 
 export default function Poll({ qandas }: Props) {
 
-  const [votes, setVotes] = useState(-999);
+  const [totalVotes, setTotalVotes] = useState(-999);
   const [answerSelected, setAnswerSelected] = useState('');
   const [randPoll, setRandPoll] = useState<QandA>();
-  const [randId, setRandId] = useState(getRamdomNumber(1, qandas.questions.length));
 
   useEffect(() => {
-    setRandId(randId);
-    setRandPoll(qandas.questions[randId]);
-  }, [])
+    setRandPoll(_.sample(qandas.questions));
+  }, []);
 
   const onAnswerSelected = (text: string) => {
-    setAnswerSelected(text);
-    let tempRandPoll: QandA = { ...randPoll } as QandA;
-    tempRandPoll.answers.map(ans => {
-      if (ans.text === text) {
-        ans.votes++;
-        return;
-      }
-    });
-    setRandPoll(tempRandPoll);
-    setVotes(votes + 1);
+    if (randPoll) {
+      setAnswerSelected(text);
+      // increasing by one vote from a copy of randPoll
+      let tempRandPoll: QandA = { ...randPoll } as QandA;
+      tempRandPoll.answers.map(ans => {
+        if (ans.text === text) {
+          ans.votes++;
+          return;
+        }
+      });
+      setRandPoll(tempRandPoll);
+      setTotalVotes(totalVotes + 1);
+    }
   };
 
   useEffect(() => {
     if (randPoll) {
-      setVotes(getTotalVotes(qandas.questions[randId]));
+      setTotalVotes(getTotalVotes(randPoll));
     }
   }, [answerSelected])
 
@@ -58,18 +59,21 @@ export default function Poll({ qandas }: Props) {
     return <div>Loading...</div>
   }
 
+  const renderTotalVotes = `${getTotalVotes(randPoll)} votes`;
+  
   return (
     <PollWrapper>
       <AskQuestion
         question={randPoll.question}></AskQuestion>
       <ChoiceList
         answers={randPoll.answers}
-        totalVotes={votes}
+        totalVotes={totalVotes}
         answerSelected={answerSelected}
         onAnswerSelected={onAnswerSelected}></ChoiceList>
       <br />
       <TotalVotesWrapper>
-        {getTotalVotes(qandas.questions[randId])} votes</TotalVotesWrapper>
+        {renderTotalVotes}
+      </TotalVotesWrapper>
     </PollWrapper >
   );
 }

@@ -1,20 +1,18 @@
 import React from 'react';
 import styled from 'styled-components'
+import useWindowDimension
+  from '../hooks/useWindowDimension';
 import { Answer } from "../types";
-import useWindowDimension from '../hooks/useWindowDimension';
 import { Dimension } from '../types';
+import {
+  getMostPopularAnswer,
+  getVotesAsPercent,
+  getIconFromText,
+} from '../utils';
 import {
   NOT_EMPTY_POLL_DIMENSION_WIDTH,
   EMPTY_POLL_DIMENSION_WIDTH
 } from '../CONST';
-import {
-  getMostPopularAnswer,
-  getVotesAsPercent,
-  getIconFromText
-} from '../utils';
-
-
-
 
 type Props = {
   answers: Answer[],
@@ -74,8 +72,15 @@ const TextWrapper = styled.span.attrs((props: any) => {
   padding: !props.centerIcon ? '6px 0px 0px 8px' : '6px 0px 0px 0px';
 })`
   position: absolute;
-  margin-left: ${props => props.centerIcon ? '-11px' : ''};
-  padding: ${ props => props.centerIcon ? '6px 0px 0px 0px' : '6px 0px 0px 8px'};
+  transition: ${props => props.centerIcon
+    ? 'all 1s ease-out'
+    : 'all 600ms ease-out'};
+  margin-left: ${props => props.centerIcon
+    ? '-11px'
+    : ''};
+  padding: ${ props => props.centerIcon
+    ? '6px 0px 0px 0px'
+    : '6px 0px 0px 8px'};
 `;
 
 const CheckCircleWrapper = styled.img.attrs({
