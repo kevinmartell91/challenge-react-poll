@@ -10,6 +10,7 @@ type Props = {
 
 const PollWrapper = styled.div`
   width: 100%;
+  min-width: 180px;
   border: 1px solid #e6e6e6;
   border-radius: 5px;
   margin: 80px 0px 80px 0px;

@@ -12,3 +12,7 @@ export type QandA = {
 export type QandAsDocument = {
   questions: QandA[];
 };
+export type Dimension = {
+  width: number,
+  height: number
+};

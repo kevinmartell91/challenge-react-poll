@@ -1,6 +1,12 @@
 import React from 'react';
 import styled from 'styled-components'
 import { Answer } from "../types";
+import useWindowDimension from '../hooks/useWindowDimension';
+import { Dimension } from '../types';
+
+
+const EMPTY_POLL_DIMENSION_WIDTH = 240;
+const NOT_EMPTY_POLL_DIMENSION_WIDTH = 290;
 
 type Props = {
   answers: Answer[],
@@ -24,8 +30,8 @@ const ContainerChoiceWrapper: any = styled.div`
 
 const BackgroundChoiceWrapper = (props: any): any => {
 
-  const emptyPoll = props.backgroundPercentVotes < 0;
-
+  const emptyPoll =
+    props.backgroundPercentVotes < 0;
   const background =
     props.popularAnswer === props.choice ? 'cyan' : '#e8e8e8';
   const weight =
@@ -33,35 +39,35 @@ const BackgroundChoiceWrapper = (props: any): any => {
   const width = emptyPoll
     ? '100%'
     : `${props.backgroundPercentVotes}%`;
+  const textAlign = props.centerIcon ? 'center' : '';
 
   return emptyPoll
     ? {
-      borderRadius: '5px 0 0 5px',
-      height: '37px',
-      left: '0px',
-      top: '0px',
-      width: '100%'
+      width: '100%',
+      textAlign: textAlign
     }
     : {
       background: background,
-      borderRadius: '5px 0 0 5px',
-      height: '37px',
-      left: '0px',
-      top: '0px',
       fontWeight: weight,
       width: width,
       transition: 'all 600ms ease 0s'
-
     };
 }
 
 const ChoiceWrapper: any = styled.div`
-  ${BackgroundChoiceWrapper}
+  ${BackgroundChoiceWrapper};
+  border-radius: 5px 0 0 5px;
+  height: 37px;
+  left: 0px;
+  top: 0px;
 `;
 
-const TextWrapper = styled.span`
+const TextWrapper = styled.span.attrs((props: any) => {
+  padding: !props.centerIcon ? '6px 0px 0px 8px' : '6px 0px 0px 0px';
+})`
   position: absolute;
-  padding: 6px 0px 0px 8px;
+  margin-left: ${props => props.centerIcon ? '-11px' : ''};
+  padding: ${ props => props.centerIcon ? '6px 0px 0px 0px' : '6px 0px 0px 8px'};
 `;
 
 const CheckCircleWrapper = styled.img.attrs({
@@ -97,12 +103,24 @@ export default function ChoiceList({
   onAnswerSelected
 }: Props) {
 
-  const renderChoices = answers.map((ans: Answer) => {
+  const windowDimension: Dimension = useWindowDimension();
+  const emptyPoll: boolean = totalVotes < 0;
 
-    const { text, votes } = ans;
+
+  const renderChoices = answers.map((answer: Answer) => {
+
+    const { text, votes } = answer;
+    const icon = text.split(' ', 1);
     const percent = (votes / totalVotes * 100).toFixed(0);
-    const renderTextPercent = totalVotes > 0 ? `${percent}%` : '';
+    const minWidth = emptyPoll
+      ? EMPTY_POLL_DIMENSION_WIDTH
+      : NOT_EMPTY_POLL_DIMENSION_WIDTH;
+    const centerIcon =
+      emptyPoll && windowDimension.width < minWidth
+        ? true : false;
 
+    const renderPercent = emptyPoll ? '' : `${percent}%`;
+    const renderText = windowDimension.width > minWidth ? text : icon;
     const renderCheckCircle = answerSelected === text
       ? <CheckCircleWrapper></CheckCircleWrapper>
       : null;
@@ -114,12 +132,13 @@ export default function ChoiceList({
         <ChoiceWrapper
           choice={text}
           popularAnswer={getMostPopularAnswer(answers)}
-          backgroundPercentVotes={percent}>
-          <TextWrapper>
-            {text}
+          backgroundPercentVotes={percent}
+          centerIcon={centerIcon}>
+          <TextWrapper windowWidth={windowDimension.width} centerIcon={centerIcon} >
+            {renderText}
             {renderCheckCircle}
           </TextWrapper>
-          <PercentageWrapper>{renderTextPercent}</PercentageWrapper>
+          <PercentageWrapper>{renderPercent}</PercentageWrapper>
         </ChoiceWrapper>
       </ContainerChoiceWrapper>
     )
