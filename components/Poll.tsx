@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { QandAsDocument, QandA } from '../types';
 import AskQuestion from './AskQuestion';
-import ChoiceList from './ChoiceList'
+import ChoiceList from './ChoiceList';
+import { getRamdomNumber, getTotalVotes } from '../utils';
+
 
 type Props = {
   qandas: QandAsDocument /* q and a's -- questions and answers document */;
@@ -21,21 +23,12 @@ const TotalVotesWrapper = styled.div`
   color: #969696;
 `;
 
-function getRamdomNumber(min: number, max: number): number {
-  return Math.floor(Math.random() * max - 1) + min;
-}
-
-function getTotalVotes(questions: QandA): number {
-  if (!questions) return 9999;
-  return questions.answers[0].votes + questions.answers[1].votes + questions.answers[2].votes + questions.answers[3].votes;
-}
-
 export default function Poll({ qandas }: Props) {
 
   const [votes, setVotes] = useState(-999);
   const [answerSelected, setAnswerSelected] = useState('');
   const [randPoll, setRandPoll] = useState<QandA>();
-  const [randId, setRandId] = useState(getRamdomNumber(0, qandas.questions.length));
+  const [randId, setRandId] = useState(getRamdomNumber(1, qandas.questions.length));
 
   useEffect(() => {
     setRandId(randId);
@@ -76,7 +69,7 @@ export default function Poll({ qandas }: Props) {
         onAnswerSelected={onAnswerSelected}></ChoiceList>
       <br />
       <TotalVotesWrapper>
-          {getTotalVotes(qandas.questions[randId])} votes</TotalVotesWrapper>
+        {getTotalVotes(qandas.questions[randId])} votes</TotalVotesWrapper>
     </PollWrapper >
   );
 }
